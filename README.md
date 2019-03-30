@@ -1,7 +1,6 @@
-South African mobile numbers validation
-==============
+SA mobile numbers validation
 
-This challenge consists on a basic PHP JSON API that can validate phone numbers.
+PHP JSON API that can validate phone numbers
 
 ### Running The Project
 
