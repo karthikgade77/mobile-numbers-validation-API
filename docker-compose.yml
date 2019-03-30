@@ -1,0 +1,60 @@
+version: '2'
+services:
+  web:
+    container_name: web
+    image: nginx:1.14.2
+    env_file: .env
+    ports:
+      - 8080:80
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - database
+      - database_test
+      - php
+  php:
+    container_name: php
+    build:
+      context: ./
+      dockerfile: ./docker/php/Dockerfile
+    env_file: .env
+    volumes:
+      - ./:/var/www/html
+  database:
+    container_name: database
+    image: mariadb:10.3
+    restart: on-failure
+    ports:
+      - 3306:3306
+    volumes:
+      - ./docker/database/data:/var/lib/mysql
+      - ./docker/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - MYSQL_DATABASE=db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=password
+  database_test:
+    container_name: database_test
+    image: mariadb:10.3
+    restart: on-failure
+    ports:
+      - 3307:3307
+    volumes:
+      - ./docker/database_test/data:/var/lib/mysql
+      - ./docker/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - MYSQL_DATABASE=db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=password
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_HOST=database
+    ports:
+      - 8000:80
+    depends_on:
+      - database
